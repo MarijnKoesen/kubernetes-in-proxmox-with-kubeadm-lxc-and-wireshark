@@ -212,6 +212,11 @@ $ kubectl apply -f calico.yaml
 
 Keep note of the join command, so we can add another node.
 
+I like k8s to schedule pods on the master too, which by default does not happen, so I need to run:
+
+```
+$ kubectl taint nodes --all node-role.kubernetes.io/master-
+```
 
 
 # Adding another node
@@ -292,11 +297,53 @@ Connection to 10.0.0.3 179 port [tcp/bgp] succeeded!
 ```
 
 
+Now make sure inter-node connectiosn are working as expected:
+
+```
+$ cat > test-daemonset.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: shell-test
+  labels:
+    k8s-app: shell-test
+spec:
+  selector:
+    matchLabels:
+      name: shell-test
+  template:
+    metadata:
+      labels:
+        name: shell-test
+    spec:
+      containers:
+      - name: shell-test
+        image: debian:stable-slim
+```
+
+Now apply the daemonset:
+
+```
+$ kubectl apply -f test-daemonset.yaml
+$ kubectl get pod  -o wide
+NAME                READY   STATUS    RESTARTS   AGE   IP               NODE      NOMINATED NODE   READINESS GATES
+shell-demo-7h995    1/1     Running   0          9h    10.250.116.129   serverw   <none>           <none>
+shell-demo-qp6k5    1/1     Running   2          9h    10.250.77.15     master    <none>           <none>
+```
+
+Now make sure we can ping both ip's from both servers:
+
+```
+master  > ping 10.250.116.129
+master  > ping 10.250.77.15
+server2 > ping 10.250.116.129
+server2 > ping 10.250.77.15
+```
+
 After this you should have a k8s cluster running, from within proxmox.
 
+# References
 
-
-References:
 [1] https://medium.com/@kvaps/run-kubernetes-in-lxc-container-f04aa94b6c9c
 [2] https://gist.github.com/kvaps/25f730e0ec39dd2e5749fb6b020e71fc
 [3] https://stackoverflow.com/questions/55813994/install-and-create-a-kubernetes-cluster-on-lxc-proxmox
