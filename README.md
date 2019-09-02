@@ -94,6 +94,7 @@ ListenPort = 55555
 PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 PrivateKey = WNeaIBT40mN/asu9zXrPeSYA+4pFmZA9lUBvHTx+TG8=
+MTU = 1500
 
 [Peer]
 # server2
@@ -230,6 +231,7 @@ VPN on server2:
 [Interface]
 PrivateKey = wPMsKBkqbdz1WBx8MhYM7/GwzYd6U7DWuef1FoeUdkg=
 Address = 10.0.0.2/32
+MTU = 1500
 
 [Peer]
 PublicKey = 8q+JKbrXDs86lnBvAl4lx6QiCzgoOOaAc7jtjz/lFBM=
